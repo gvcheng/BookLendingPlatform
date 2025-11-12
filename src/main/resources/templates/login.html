@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='login')"></div>
+    
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>图书借阅平台</h2>
+                    <p>登录您的账号以继续</p>
+                </div>
+            
+            <div class="auth-body">
+                <div th:if="${error}" class="message error mb-4">
+                    <p th:text="${error}"></p>
+                </div>
+                
+                <form th:action="@{/login}" method="post">
+                    <div class="auth-form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" class="auth-form-control" id="username" name="username" required placeholder="请输入用户名">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="password">密码</label>
+                        <input type="password" class="auth-form-control" id="password" name="password" required placeholder="请输入密码">
+                    </div>
+                    
+                    <div class="auth-options">
+                        <div class="auth-checkbox">
+                            <input type="checkbox" id="remember-me" name="remember-me">
+                            <label for="remember-me">记住我</label>
+                        </div>
+                        <a href="#" class="auth-link">忘记密码？</a>
+                    </div>
+                    
+                    <button type="submit" class="auth-button">登录</button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span class="auth-divider-text">测试账号</span>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <p class="text-muted">管理员：admin / admin123</p>
+                    <p class="text-muted">普通用户：user1 / user123</p>
+                </div>
+            </div>
+            
+            <div class="auth-footer">
+                 <p>还没有账号？<a th:href="@{/register}" class="auth-link">立即注册</a></p>
+              </div>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

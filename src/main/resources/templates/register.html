@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='register')"></div>
+    
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>图书借阅平台</h2>
+                    <p>创建新账号以开始使用</p>
+                </div>
+            
+            <div class="auth-body">
+                <div th:if="${error}" class="message error mb-4">
+                    <p th:text="${error}"></p>
+                </div>
+                
+                <form th:action="@{/register}" method="post">
+                    <div class="auth-form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" class="auth-form-control" id="username" name="username" required placeholder="请输入用户名">
+                        <div class="auth-form-message" id="username-message"></div>
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="password">密码</label>
+                        <input type="password" class="auth-form-control" id="password" name="password" required placeholder="请输入密码">
+                        <div class="auth-form-message" id="password-message">密码至少包含6个字符</div>
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" class="auth-form-control" id="email" name="email" required placeholder="请输入邮箱">
+                        <div class="auth-form-message" id="email-message"></div>
+                    </div>
+                    
+                    <div class="auth-checkbox mb-4">
+                        <input type="checkbox" id="agree-terms" name="agree-terms" required>
+                        <label for="agree-terms">我已阅读并同意<a href="#" class="auth-link">服务条款</a>和<a href="#" class="auth-link">隐私政策</a></label>
+                    </div>
+                    
+                    <button type="submit" class="auth-button">注册</button>
+                </form>
+            </div>
+            
+            <div class="auth-footer">
+                 <p>已有账号？<a th:href="@{/login}" class="auth-link">立即登录</a></p>
+              </div>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

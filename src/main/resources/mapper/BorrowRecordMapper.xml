@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booklending.mapper.BorrowRecordMapper">
+<resultMap id="BorrowRecordResultMap" type="com.booklending.entity.BorrowRecord">
+<id property="id" column="id"/>
+<result property="userId" column="user_id"/>
+<result property="bookId" column="book_id"/>
+<result property="borrowDate" column="borrow_date"/>
+<result property="dueDate" column="due_date"/>
+<result property="returnDate" column="return_date"/>
+<result property="fineAmount" column="fine_amount"/>
+<result property="status" column="status"/>
+<result property="createdAt" column="created_at"/>
+<result property="updatedAt" column="updated_at"/>
+<!-- 关联用户信息 -->
+<association property="user" column="user_id" javaType="com.booklending.entity.User">
+    <id property="id" column="user_id"/>
+    <result property="username" column="username"/>
+</association>
+<!-- 关联图书信息 -->
+<association property="book" column="book_id" javaType="com.booklending.entity.Book">
+    <id property="id" column="book_id"/>
+    <result property="title" column="book_title"/>
+    <result property="isbn" column="book_isbn"/>
+    <result property="coverImage" column="book_cover_image"/>
+</association>
+</resultMap>
+
+<insert id="insert" parameterType="com.booklending.entity.BorrowRecord">
+INSERT INTO borrow_record (user_id, book_id, borrow_date, due_date, fine_amount, status, created_at, updated_at)
+VALUES (#{userId}, #{bookId}, #{borrowDate}, #{dueDate}, #{fineAmount}, #{status}, #{createdAt}, #{updatedAt})
+</insert>
+
+<update id="update" parameterType="com.booklending.entity.BorrowRecord">
+UPDATE borrow_record
+SET user_id = #{userId},
+book_id = #{bookId},
+borrow_date = #{borrowDate},
+due_date = #{dueDate},
+return_date = #{returnDate},
+fine_amount = #{fineAmount},
+status = #{status},
+updated_at = #{updatedAt}
+WHERE id = #{id}
+</update>
+
+<delete id="delete" parameterType="Long">
+DELETE FROM borrow_record WHERE id = #{id}
+</delete>
+
+<select id="selectById" resultMap="BorrowRecordResultMap" parameterType="Long">
+SELECT br.*, 
+       b.id AS book_id,
+       b.title AS book_title,
+       b.isbn AS book_isbn,
+       CASE WHEN b.id IS NOT NULL THEN '' ELSE NULL END AS book_cover_image
+FROM borrow_record br
+LEFT JOIN book b ON br.book_id = b.id
+WHERE br.id = #{id}
+</select>
+
+<select id="selectByUserId" resultMap="BorrowRecordResultMap" parameterType="Long">
+SELECT br.*, 
+       b.id AS book_id,
+       b.title AS book_title,
+       b.isbn AS book_isbn,
+       CASE WHEN b.id IS NOT NULL THEN '' ELSE NULL END AS book_cover_image,
+       u.id AS user_id,
+       u.username
+FROM borrow_record br
+LEFT JOIN book b ON br.book_id = b.id
+LEFT JOIN user u ON br.user_id = u.id
+WHERE br.user_id = #{userId} 
+ORDER BY br.borrow_date DESC
+</select>
+
+<select id="selectByBookId" resultMap="BorrowRecordResultMap" parameterType="Long">
+SELECT * FROM borrow_record WHERE book_id = #{bookId} ORDER BY borrow_date DESC
+</select>
+
+<select id="selectAll" resultMap="BorrowRecordResultMap">
+SELECT br.*, 
+       b.id AS book_id,
+       b.title AS book_title,
+       b.isbn AS book_isbn,
+       CASE WHEN b.id IS NOT NULL THEN '' ELSE NULL END AS book_cover_image,
+       u.id AS user_id,
+       u.username
+FROM borrow_record br
+LEFT JOIN book b ON br.book_id = b.id
+LEFT JOIN user u ON br.user_id = u.id
+ORDER BY br.created_at DESC
+</select>
+
+<select id="selectOverdue" resultMap="BorrowRecordResultMap" parameterType="Date">
+SELECT br.*, 
+       b.id AS book_id,
+       b.title AS book_title,
+       b.isbn AS book_isbn,
+       CASE WHEN b.id IS NOT NULL THEN '' ELSE NULL END AS book_cover_image,
+       u.id AS user_id,
+       u.username
+FROM borrow_record br
+LEFT JOIN book b ON br.book_id = b.id
+LEFT JOIN user u ON br.user_id = u.id
+WHERE (br.status = 'BORROWED' AND br.due_date &lt; #{currentDate}) OR br.status = 'OVERDUE'
+ORDER BY br.due_date ASC
+</select>
+
+<select id="countUserActiveBorrows" resultType="Integer" parameterType="Long">
+SELECT COUNT(*) FROM borrow_record WHERE user_id = #{userId} AND status = 'BORROWED'
+</select>
+
+<select id="countBookActiveBorrows" resultType="Integer" parameterType="Long">
+SELECT COUNT(*) FROM borrow_record WHERE book_id = #{bookId} AND status = 'BORROWED'
+</select>
+
+<select id="search" resultMap="BorrowRecordResultMap" parameterType="String">
+SELECT br.*, 
+       b.id AS book_id,
+       b.title AS book_title,
+       b.isbn AS book_isbn,
+       CASE WHEN b.id IS NOT NULL THEN '' ELSE NULL END AS book_cover_image,
+       u.id AS user_id,
+       u.username
+FROM borrow_record br
+LEFT JOIN book b ON br.book_id = b.id
+LEFT JOIN user u ON br.user_id = u.id
+WHERE br.id LIKE CONCAT('%', #{keyword}, '%') 
+   OR b.title LIKE CONCAT('%', #{keyword}, '%')
+   OR b.isbn LIKE CONCAT('%', #{keyword}, '%')
+   OR br.status LIKE CONCAT('%', #{keyword}, '%')
+   OR u.username LIKE CONCAT('%', #{keyword}, '%')
+ORDER BY br.created_at DESC
+</select>
+</mapper>

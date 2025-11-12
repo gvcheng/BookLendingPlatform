@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>逾期记录管理 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- 保留FontAwesome图标库用于页面中的图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='overdue')"></div>
+    
+    <div class="container borrows-page">
+        <!-- 页面头部 -->
+        <section>
+            <div class="page-header">
+                <h1>逾期记录管理</h1>
+                <p>查看和处理所有逾期未归还的图书记录</p>
+            </div>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="message success fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error}" class="message error fade-in">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <!-- 操作按钮区域 -->
+        <div class="action-buttons">
+            <a th:href="@{/}" class="btn btn-secondary">
+                <i class="fas fa-home"></i>
+                返回首页
+            </a>
+            <a th:href="@{/borrow/list}" class="btn btn-info">
+                <i class="fas fa-list"></i>
+                查看所有借阅记录
+            </a>
+        </div>
+        
+        <!-- 三个模块：用户信息卡片（管理员信息）、借阅统计、借阅记录表格 -->
+        
+        <!-- 1. 用户信息卡片（管理员信息） -->
+        <div class="user-info-card fade-in delay-1">
+            <div class="card-header">
+                <i class="fas fa-user-circle"></i> 管理员信息
+            </div>
+            <div class="user-info">
+                <div class="user-info-item">
+                    <label>当前角色</label>
+                    <span class="text-primary">管理员</span>
+                </div>
+                <div class="user-info-item">
+                    <label>管理权限</label>
+                    <span>逾期记录管理</span>
+                </div>
+                <div class="user-info-item">
+                    <label>操作时间</label>
+                    <span th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 2. 借阅统计 -->
+        <div class="borrow-stats">
+            <!-- 逾期记录总数 -->
+            <div class="borrow-stat-card fade-in delay-2">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-value" th:text="${overdueRecords != null ? overdueRecords.size() : 0}">0</div>
+                <div class="stat-label">逾期记录总数</div>
+            </div>
+            
+            <!-- 总罚款金额 -->
+            <div class="borrow-stat-card warning fade-in delay-2">
+                <div class="stat-icon warning"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-value" th:text="|¥${#numbers.formatDecimal(totalFine, 0, 2)}|">¥0.00</div>
+                <div class="stat-label">总罚款金额</div>
+            </div>
+            
+            <!-- 最长逾期天数 -->
+            <div class="borrow-stat-card info fade-in delay-2">
+                <div class="stat-icon info"><i class="fas fa-clock"></i></div>
+                <div class="stat-value" th:text="${maxDaysOverdue}">0</div>
+                <div class="stat-label">最长逾期天数</div>
+            </div>
+        </div>
+        
+        <!-- 3. 借阅记录表格 -->
+        <div class="borrow-table-container fade-in delay-3">
+            <div class="borrow-table-wrapper">
+                <table class="borrow-table">
+                <thead>
+                    <tr>
+                        <th>借阅ID</th>
+                        <th>用户信息</th>
+                        <th>图书信息</th>
+                        <th>借阅日期</th>
+                        <th>应还日期</th>
+                        <th>归还日期</th>
+                        <th>逾期天数</th>
+                        <th>罚款金额</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="record : ${overdueRecords}">
+                        <td th:text="${record.id}"></td>
+                        <td>
+                            <!-- 用户信息显示 -->
+                            <div style="margin: 0; padding: 0;">ID: <span th:text="${record.userId}"></span></div>
+                            <!-- 确保用户名显示 -->
+                            <div style="margin: 0; padding: 0;">
+                                <i class="fas fa-user"></i>
+                                <span th:text="${record.user?.username ?: '未知用户'}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="book-meta" style="margin: 0; padding: 0;">ID: <span th:text="${record.bookId}"></span></div>
+                            <div class="book-title" style="margin: 0; padding: 0;" th:text="${record.book != null ? record.book.title : '未知图书'}"></div>
+                        </td>
+                        <td>
+                            <div class="borrow-date">
+                                <i class="fas fa-calendar-check"></i>
+                                <span th:text="${record.borrowDate != null ? #dates.format(record.borrowDate, 'yyyy-MM-dd') : '-'}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="borrow-date overdue-date">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span th:text="${record.dueDate != null ? #dates.format(record.dueDate, 'yyyy-MM-dd') : '-'}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="borrow-date">
+                                <i class="fas fa-calendar-check"></i>
+                                <span th:text="${record.returnDate != null ? #dates.format(record.returnDate, 'yyyy-MM-dd') : '-'}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge overdue">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span th:text="${daysOverdueMap.get(record.id)}">0</span> 天
+                            </span>
+                            <span th:if="${daysOverdueMap.get(record.id) != null and daysOverdueMap.get(record.id) > 30}" class="urgent-badge">紧急</span>
+                        </td>
+                        <td>
+                            <span class="fine-amount">
+                                <i class="fas fa-yen-sign"></i>
+                                <span th:text="${record.fineAmount != null ? #numbers.formatDecimal(record.fineAmount, 0, 2) : '0.00'}">0.00</span>
+                            </span>
+                        </td>
+                        <td>
+                            <a th:href="@{/user/view(id=${record.userId})}" class="btn btn-info action-btn">
+                                <i class="fas fa-user-circle"></i> 查看用户
+                            </a>
+                            <form method="post" th:action="@{/borrow/return}" style="display:inline;">
+                                <input type="hidden" name="borrowId" th:value="${record.id}">
+                                <button type="submit" class="btn btn-primary action-btn" onclick="return confirm('确定要归还这本书并收取罚款吗？');">
+                                    <i class="fas fa-undo"></i> 归还并罚款
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${overdueRecords == null or overdueRecords.empty}">
+                        <td colspan="9" class="no-records">
+                            <i class="fas fa-check-circle"></i>
+                            <p>暂无逾期记录</p>
+                            <span>所有借出的图书都已按时归还</span>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 返回按钮 -->
+        <div class="page-actions">
+            <a th:href="@{/borrow/list}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> 返回借阅记录列表
+            </a>
+        </div>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

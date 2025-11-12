@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改借阅记录 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            opacity: 0.9;
+        }
+        .status-select {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='borrow-list')"></div>
+    
+    <div class="container">
+        <section class="books-section">
+            <div class="section-title">
+                <h2>修改借阅记录</h2>
+            </div>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="message success">
+            <p th:text="${message}"></p>
+        </div>
+        
+        <div th:if="${error}" class="message error">
+            <p th:text="${error}"></p>
+        </div>
+        
+        <!-- 借阅记录编辑表单 -->
+        <form th:action="@{/borrow/edit/{id}(id=${record.id})}" method="post" class="borrow-form">
+            <div class="form-group">
+                <label for="userId">用户ID</label>
+                <input type="text" id="userId" name="userId" class="form-control" th:value="${record.userId}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bookId">图书ID</label>
+                <input type="text" id="bookId" name="bookId" class="form-control" th:value="${record.bookId}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="borrowDate">借阅日期</label>
+                <input type="date" id="borrowDate" name="borrowDate" class="form-control" th:value="${record.borrowDate != null ? #dates.format(record.borrowDate, 'yyyy-MM-dd') : ''}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dueDate">应还日期</label>
+                <input type="date" id="dueDate" name="dueDate" class="form-control" th:value="${record.dueDate != null ? #dates.format(record.dueDate, 'yyyy-MM-dd') : ''}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="returnDate">归还日期</label>
+                <input type="date" id="returnDate" name="returnDate" class="form-control" th:value="${record.returnDate != null ? #dates.format(record.returnDate, 'yyyy-MM-dd') : ''}">
+            </div>
+            
+            <div class="form-group">
+                <label for="fineAmount">罚款金额</label>
+                <input type="number" id="fineAmount" name="fineAmount" class="form-control" th:value="${record.fineAmount}" min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="status">状态</label>
+                <select id="status" name="status" class="form-control status-select" required>
+                    <option th:selected="${record.status == 'BORROWED'}" value="BORROWED">借阅中</option>
+                    <option th:selected="${record.status == 'RETURNED'}" value="RETURNED">已归还</option>
+                    <option th:selected="${record.status == 'OVERDUE'}" value="OVERDUE">已逾期</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存修改</button>
+                <a th:href="@{/borrow/list}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的借阅记录 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- 保留FontAwesome图标库用于页面中的图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='user-borrows')"></div>
+    
+    <div class="container borrows-page">
+        <!-- 页面头部 -->
+        <section>
+            <div class="page-header">
+                <h1>我的借阅记录</h1>
+            </div>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="message success fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error}" class="message error fade-in">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <!-- 用户信息卡片 -->
+        <div class="user-info-card fade-in delay-1">
+            <div class="card-header">
+                <i class="fas fa-user-circle"></i> 用户信息
+            </div>
+            <div class="user-info">
+                <div class="user-info-item">
+                    <label>用户名</label>
+                    <span th:text="${user.username}" class="text-primary"></span>
+                </div>
+                <div class="user-info-item">
+                    <label>邮箱</label>
+                    <span th:text="${user.email}"></span>
+                </div>
+                <div class="user-info-item">
+                    <label>注册日期</label>
+                    <span th:text="${user.createdAt != null ? #dates.format(user.createdAt, 'yyyy-MM-dd') : '未知'}"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 借阅统计 -->
+        <div class="borrow-stats">
+            <!-- 总借阅次数 -->
+            <div class="borrow-stat-card fade-in delay-2">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-value" th:text="${borrowRecords != null ? borrowRecords.size() : 0}">0</div>
+                <div class="stat-label">总借阅次数</div>
+            </div>
+            
+            <!-- 逾期图书 -->
+            <div class="borrow-stat-card warning fade-in delay-2">
+                <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+                <div th:with="overdueCount=0">
+                    <span th:each="record : ${borrowRecords}" th:if="${record.status == 'OVERDUE'}" th:with="overdueCount=${overdueCount + 1}"></span>
+                    <div class="stat-value" th:text="${overdueCount}">0</div>
+                </div>
+                <div class="stat-label">逾期图书</div>
+            </div>
+            
+            <!-- 当前借阅 -->
+            <div class="borrow-stat-card info fade-in delay-2">
+                <div class="stat-icon info"><i class="fas fa-book-open"></i></div>
+                <div class="stat-value" th:text="${activeBorrowCount}">0</div>
+                <div class="stat-label">当前借阅</div>
+            </div>
+        </div>
+        
+        <!-- 借阅记录表格 -->
+        <div class="borrow-table-container fade-in delay-3">
+            <div class="borrow-table-wrapper">
+                <table class="borrow-table">
+                <thead>
+                    <tr>
+                        <th>图书封面</th>
+                        <th>图书信息</th>
+                        <th>借阅日期</th>
+                        <th>应还日期</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="record : ${borrowRecords}">
+                        <td>
+                            <div class="book-cover">
+                                <img th:if="${record.book?.coverImage}" th:src="@{${record.book.coverImage}}" alt="图书封面" class="rounded" style="width: 80px; height: 120px; object-fit: cover;">
+                                <div th:unless="${record.book?.coverImage}" class="book-cover-placeholder">
+                                    <i class="fas fa-book" style="font-size: 48px; color: #ddd; padding: 36px;"></i>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="book-title" th:text="${record.book?.title}">未知图书</div>
+                            <div class="book-meta">
+                                作者: 
+                                <span th:if="${record.book?.authors != null and !record.book.authors.isEmpty()}">
+                                    <span th:each="author, iter : ${record.book.authors}">
+                                        <span th:text="${author.name}"></span>
+                                        <span th:if="${!iter.last}">, </span>
+                                    </span>
+                                </span>
+                                <span th:unless="${record.book?.authors != null and !record.book.authors.isEmpty()}">未知</span>
+                            </div>
+                            <div class="book-meta">ISBN: <span th:text="${record.book?.isbn}">未知</span></div>
+                        </td>
+                        <td>
+                            <div class="borrow-date">
+                                <i class="fas fa-calendar-check"></i>
+                                <span th:text="${#dates.format(record.borrowDate, 'yyyy-MM-dd')}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div th:class="${record.status == 'OVERDUE' ? 'borrow-date overdue-date' : 'borrow-date'}">
+                                <i th:class="${record.status == 'OVERDUE' ? 'fas fa-exclamation-triangle' : 'fas fa-calendar-times'}"></i>
+                                <span th:text="${#dates.format(record.dueDate, 'yyyy-MM-dd')}"></span>
+                            </div>
+                            <!-- 逾期天数计算 -->
+                            <div th:if="${record.status == 'OVERDUE' and record.dueDate != null}" class="overdue-days">
+                                已逾期 <span th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(
+                                    T(java.time.Instant).ofEpochMilli(record.dueDate.time).atZone(T(java.time.ZoneId).systemDefault()).toLocalDate(),
+                                    T(java.time.LocalDate).now()
+                                )}"></span> 天
+                            </div>
+                        </td>
+                        <td>
+                            <span th:class="${record.status == 'OVERDUE' ? 'status-badge overdue' : record.status == 'RETURNED' ? 'status-badge returned' : 'status-badge active'}">
+                                <i th:class="${record.status == 'OVERDUE' ? 'fas fa-exclamation-circle' : record.status == 'RETURNED' ? 'fas fa-check-circle' : 'fas fa-clock'}"></i>
+                                <span th:if="${record.status == 'RETURNED'}">已归还</span>
+                                <span th:if="${record.status == 'OVERDUE'}">已逾期</span>
+                                <span th:if="${record.status != 'RETURNED' and record.status != 'OVERDUE'}">借阅中</span>
+                            </span>
+                        </td>
+                        <td>
+                            <form th:if="${record.status != 'RETURNED'}" method="post" th:action="@{/borrow/return}">
+                                <input type="hidden" name="borrowId" th:value="${record.id}">
+                                <button type="submit" class="btn btn-primary return-btn">
+                                    <i class="fas fa-undo"></i> 归还
+                                </button>
+                            </form>
+                            <span th:unless="${record.status != 'RETURNED'}" class="text-muted">已归还</span>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            
+            <div th:if="${borrowRecords.empty}" class="no-records">
+                <i class="fas fa-book-open"></i>
+                <p>暂无借阅记录</p>
+                <a th:href="@{/book/available}" class="btn btn-primary">
+                    <i class="fas fa-search"></i> 浏览图书
+                </a>
+            </div>
+        </div>
+        
+        <!-- 返回按钮 -->
+        <div class="page-actions">
+            <a th:href="@{/}" class="btn btn-secondary">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+        </div>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+    
+    <script>
+        // 页面加载完成后的动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为表格行添加动画
+            const tableRows = document.querySelectorAll('.table tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+                row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 300 + index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+/* 图书卡片专用样式 */
+
+/* 主容器样式 */
+.bookstore-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 页面标题样式 */
+.page-title {
+    margin-bottom: 30px;
+    font-weight: 700;
+    text-align: center;
+    padding: 20px 0;
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+}
+
+/* 搜索栏样式 */
+.search-bar {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 30px;
+}
+
+/* 搜索输入框样式 */
+.search-bar input {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: var(--transition);
+}
+
+.search-bar input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 搜索按钮样式 - 复用btn-primary */
+.search-bar button {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.search-bar button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 统计信息样式 */
+.stats-info {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.available-badge {
+    background: var(--success-color);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* 图书卡片网格容器 */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+/* 图书卡片样式 - 购物平台风格 */
+.book-card {
+    background: white;
+    border-radius: calc(var(--border-radius) + 4px);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    text-align: center;
+}
+
+.book-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* 图书封面容器 */
+.book-cover-container {
+    position: relative;
+    padding-top: 100%; /* 调整为更合理的比例 */
+    overflow: hidden;
+    background: var(--light-color);
+}
+
+/* 图书封面图片 */
+.book-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.book-card:hover .book-cover {
+    transform: scale(1.05);
+}
+
+/* 可借标签 */
+.availability-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--success-color);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+/* 卡片内容区域 */
+.book-card-content {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 书名样式 */
+.book-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 6px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 作者样式 */
+.book-author {
+    color: var(--gray-color);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+/* 图书信息样式 */
+.book-meta {
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #888;
+}
+
+.book-meta p {
+    margin-bottom: 5px;
+}
+
+/* 图书简介样式 */
+.book-description {
+    font-size: 14px;
+    color: var(--gray-color);
+    line-height: 1.3;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+/* 卡片底部区域 */
+.book-card-footer {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* 按钮组样式 */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+/* 操作按钮样式 */
+.btn-detail, .btn-borrow {
+    flex: 1;
+    padding: 12px 0;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    text-decoration: none;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* 确保表单内的按钮尺寸一致 */
+.action-buttons form {
+    flex: 1;
+    margin: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.btn-detail {
+    background: var(--gray-color);
+    color: white;
+}
+
+.btn-detail:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-borrow {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.btn-borrow:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-borrow:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* 空状态样式 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: calc(var(--border-radius) + 4px);
+    box-shadow: var(--shadow-md);
+}
+
+.empty-state h3 {
+    color: var(--gray-color);
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #888;
+}
+
+/* 返回按钮容器 */
+.back-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.back-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.back-btn-secondary {
+    background: var(--gray-color);
+    color: white;
+}
+
+.back-btn-secondary:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+.back-btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.back-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    .book-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}

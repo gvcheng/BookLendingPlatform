@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booklending.mapper.BookMapper">
+    
+    <resultMap id="BookResultMap" type="com.booklending.entity.Book">
+        <id property="id" column="id"/>
+        <result property="isbn" column="isbn"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="publisher" column="publisher"/>
+        <result property="coverImage" column="cover_image"/>
+        <result property="publishDate" column="publish_date"/>
+        <result property="totalCopies" column="total_copies"/>
+        <result property="availableCopies" column="available_copies"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    
+    <insert id="insert" parameterType="com.booklending.entity.Book">
+        INSERT INTO book (isbn, title, description, publisher, cover_image, publish_date, total_copies, available_copies, created_at, updated_at)
+        VALUES (#{isbn}, #{title}, #{description}, #{publisher}, #{coverImage}, #{publishDate}, #{totalCopies}, #{availableCopies}, #{createdAt}, #{updatedAt})
+    </insert>
+    
+    <update id="update" parameterType="com.booklending.entity.Book">
+        UPDATE book
+        SET isbn = #{isbn},
+            title = #{title},
+            description = #{description},
+            publisher = #{publisher},
+            cover_image = #{coverImage},
+            publish_date = #{publishDate},
+            total_copies = #{totalCopies},
+            available_copies = #{availableCopies},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateAvailableCopies">
+        UPDATE book
+        SET available_copies = #{availableCopies}
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="delete" parameterType="Long">
+        DELETE FROM book WHERE id = #{id}
+    </delete>
+    
+    <select id="selectById" resultMap="BookResultMap" parameterType="Long">
+        SELECT * FROM book WHERE id = #{id}
+    </select>
+    
+    <select id="selectByIsbn" resultMap="BookResultMap" parameterType="String">
+        SELECT * FROM book WHERE isbn = #{isbn}
+    </select>
+    
+    <select id="selectAll" resultMap="BookResultMap">
+        SELECT * FROM book
+    </select>
+    
+    <select id="selectByPage" resultMap="BookResultMap">
+        SELECT * FROM book LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="searchByTitle" resultMap="BookResultMap" parameterType="String">
+        SELECT * FROM book WHERE title LIKE CONCAT('%', #{title}, '%')
+    </select>
+    
+    <select id="searchByAuthor" resultMap="BookResultMap" parameterType="String">
+        SELECT * FROM book WHERE author LIKE CONCAT('%', #{authorName}, '%')
+    </select>
+    
+    <select id="searchByCategory" resultMap="BookResultMap" parameterType="Long">
+        SELECT b.* FROM book b
+        JOIN book_category bc ON b.id = bc.book_id
+        WHERE bc.category_id = #{categoryId}
+    </select>
+    
+    <select id="selectPopularBooks" resultMap="BookResultMap" parameterType="Integer">
+        SELECT b.*, COUNT(br.id) as borrow_count FROM book b
+        LEFT JOIN borrow_record br ON b.id = br.book_id
+        GROUP BY b.id
+        ORDER BY borrow_count DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

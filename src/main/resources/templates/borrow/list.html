@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>借阅记录列表 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='borrow-list')"></div>
+    
+    <div class="container">
+        <section class="books-section" style="max-width: 1200px; width: 100%; margin: 0 auto;">
+            <div class="section-title">
+                <h2>借阅记录列表</h2>
+                <p>查看和管理所有借阅记录，包括已借出和已归还的图书</p>
+            </div>
+        
+        <!-- 返回首页按钮和搜索表单 -->
+        <div class="mb-4" style="display: flex; align-items: center; white-space: nowrap;">
+            <a th:href="@{/}" class="btn btn-secondary mr-4" style="flex-shrink: 0; margin-right: 20px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                返回首页
+            </a>
+            <div style="flex-grow: 1; min-width: 0;">
+                <!-- 确保管理员可以看到并使用搜索框 -->
+                <form th:action="@{/borrow/search}" method="get" style="width: 100%;">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control" placeholder="搜索用户名、图书名称或ISBN" name="keyword" th:value="${searchKeyword}">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">搜索</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 消息提示区域 -->
+        <div th:if="${message}" class="message success">
+            <p th:text="${message}"></p>
+        </div>
+        
+        <div th:if="${error}" class="message error">
+            <p th:text="${error}"></p>
+        </div>
+        
+        <!-- 表格内容 -->
+        <table class="book-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户信息</th>
+                        <th>图书信息</th>
+                        <th>借阅日期</th>
+                        <th>应还日期</th>
+                        <th>归还日期</th>
+                        <th>罚款金额</th>
+                        <th>状态</th>
+                        <th style="width: 200px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 修复：1. 处理records为null；2. 处理recordStat为null -->
+                    <tr th:each="record, recordStat : ${records}" 
+                        class="fade-in" 
+                        th:style="|animation-delay: ${recordStat != null ? (recordStat.index % 10) * 0.1 : 0}s|" 
+                        th:if="${records != null}">
+                        <!-- 修复：ID字段空判断 -->
+                        <td th:text="${record.id != null ? record.id : '-'}"></td>
+                        <td>
+                            <!-- 修复：用户ID空判断 -->
+                            <div>ID: <span th:text="${record.userId != null ? record.userId : '-'}"></span></div>
+                            <!-- 优化：使用Thymeleaf安全导航操作符确保用户名正确显示 -->
+                            <div th:text="${record.user?.username ?: '未知用户'}"></div>
+                        </td>
+                        <td>
+                            <!-- 修复：图书ID空判断 -->
+                            <div>ID: <span th:text="${record.bookId != null ? record.bookId : '-'}"></span></div>
+                            <!-- 修复：图书标题空判断，通过book关联对象访问title -->
+                            <div th:text="${record.book != null ? record.book.title : '未知图书'}"></div>
+                        </td>
+                        <!-- 日期字段空判断（已修复，保留） -->
+                        <td th:text="${record.borrowDate != null ? #dates.format(record.borrowDate, 'yyyy-MM-dd') : '-'}"></td>
+                        <td th:text="${record.dueDate != null ? #dates.format(record.dueDate, 'yyyy-MM-dd') : '-'}"></td>
+                        <td th:text="${record.returnDate != null ? #dates.format(record.returnDate, 'yyyy-MM-dd') : '-'}"></td>
+                        <!-- 罚款金额空判断（已修复，保留） -->
+                        <td th:if="${record.fineAmount != null and record.fineAmount > 0}" class="fine-amount" th:text="|¥${record.fineAmount}|"></td>
+                        <td th:unless="${record.fineAmount != null and record.fineAmount > 0}">-</td>
+                        <td>
+                            <span th:if="${record.status == 'BORROWED'}" class="status-badge status-borrowed">借阅中</span>
+                            <span th:if="${record.status == 'RETURNED'}" class="status-badge status-returned">已归还</span>
+                            <span th:if="${record.status == 'OVERDUE'}" class="status-badge status-overdue">已逾期</span>
+                            <!-- 未知状态默认值 -->
+                            <span th:if="${record.status == null or !#lists.contains({'BORROWED','RETURNED','OVERDUE'}, record.status)}" class="status-badge">未知状态</span>
+                        </td>
+                        <td style="white-space: nowrap; text-align: center;">
+                            <div style="display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                                <a th:href="@{/borrow/edit/{id}(id=${record.id})}" class="btn btn-primary btn-sm" th:disabled="${record.id == null}">
+                                    修改
+                                </a>
+                                <form method="post" th:action="@{/borrow/delete/{id}(id=${record.id})}" style="margin: 0;" onsubmit="return confirm('确定要删除这条借阅记录吗？');" th:disabled="${record.id == null}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        删除
+                                    </button>
+                                </form>
+                                <form th:if="${record.status == 'BORROWED'}" th:action="@{/borrow/return}" method="post" style="margin: 0;" th:disabled="${record.id == null}">
+                                    <!-- 修复：borrowId空判断 -->
+                                    <input type="hidden" name="borrowId" th:value="${record.id != null ? record.id : 0}">
+                                    <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('确定要归还这本书吗？');">归还</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 空判断（先判断null，再判断empty） -->
+                    <tr th:if="${records == null or records.empty}">
+                        <td colspan="9" class="text-center py-4">
+                            <div class="text-muted">暂无借阅记录</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新图书 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='book')"></div>
+    
+    <div class="container">
+        <section class="books-section">
+            <div class="section-title">
+                <h2>更新图书</h2>
+            </div>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="message success">
+            <p th:text="${message}"></p>
+        </div>
+        <div th:if="${error}" class="message error">
+            <p th:text="${error}"></p>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <form th:action="@{/book/update}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="title">图书名称</label>
+                                <input type="text" class="form-control" id="title" name="title" th:field="*{title}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="author">作者</label>
+                                <input type="text" class="form-control" id="author" name="author" th:field="*{author}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="isbn">ISBN</label>
+                                <input type="text" class="form-control" id="isbn" name="isbn" th:field="*{isbn}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="publisher">出版社</label>
+                                <input type="text" class="form-control" id="publisher" name="publisher" th:field="*{publisher}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="publishDate">出版日期</label>
+                                <input type="date" class="form-control" id="publishDate" name="publishDate" th:field="*{publishDate}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="totalQuantity">总数量</label>
+                                <input type="number" class="form-control" id="totalCopies" name="totalCopies" th:field="*{totalCopies}" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="availableCopies">可借数量</label>
+                                <input type="number" class="form-control" id="availableCopies" name="availableCopies" th:field="*{availableCopies}" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">图书简介</label>
+                        <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">更新图书</button>
+                        <a href="/book/list" class="btn btn-secondary ml-2">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

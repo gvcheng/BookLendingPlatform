@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书借阅平台 - 首页</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='index')"></div>
+    
+    <div class="container">
+        <!-- 欢迎信息 -->
+        <section class="welcome-section">
+            <h1>欢迎使用图书借阅平台</h1>
+            <p>探索我们丰富的图书资源，开启您的阅读之旅！</p>
+        </section>
+        
+        <!-- 错误信息显示 -->
+        <div th:if="${errorMessage}" class="message error">
+            <p th:text="${errorMessage}"></p>
+        </div>
+        
+        <!-- 统计信息卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <h3>总图书数</h3>
+                <div class="value" th:text="${totalBooks}">100</div>
+            </div>
+            <div class="stat-card available">
+                <h3>可借图书</h3>
+                <div class="value" th:text="${availableBooks}">80</div>
+            </div>
+            <div class="stat-card borrows">
+                <h3>当前借阅</h3>
+                <div class="value" th:text="${currentBorrows}">20</div>
+            </div>
+            <div class="stat-card overdue">
+                <h3>逾期图书</h3>
+                <div class="value" th:text="${overdueBooks}">5</div>
+            </div>
+        </div>
+        
+        <!-- 热门图书 -->
+        <section class="books-section">
+            <div class="section-title">
+                <h2>热门图书</h2>
+                <a th:href="@{/book/available}" class="view-all">查看全部</a>
+            </div>
+            
+            <div class="books-grid">
+                <!-- 从数据库获取的热门图书 -->
+                <th:block th:if="${popularBooks != null and !popularBooks.isEmpty()}">
+                    <div th:each="book : ${popularBooks}" class="book-card">
+                        <div class="book-cover">
+                            <!-- 使用Thymeleaf正确语法处理网络图片URL -->
+                            <img th:src="|https://picsum.photos/seed/${book.id}/200/300|" th:alt="${book.title}" class="cover-image">
+                        </div>
+                        <div class="book-title" th:text="${book.title}"></div>
+                        <div class="book-author">
+                            <span th:if="${book.author != null}">
+                                <span th:text="${book.author}"></span>
+                            </span>
+                            <span th:unless="${book.author != null}">未知作者</span>
+                        </div>
+                        <a th:href="@{/book/detail/{id}(id=${book.id})}" class="btn btn-primary">详情</a>
+                    </div>
+                </th:block>
+                
+                <!-- 如果没有热门图书时显示的提示 -->
+                <th:block th:unless="${popularBooks != null and !popularBooks.isEmpty()}">
+                    <div class="book-card">
+                        <div class="book-cover">暂无图书</div>
+                        <div class="book-title">暂无热门图书</div>
+                        <div class="book-author">请稍后再试</div>
+                    </div>
+                </th:block>
+            </div>
+        </section>
+        
+        <!-- 借阅提示 -->
+        <section class="books-section">
+            <h2>借阅须知</h2>
+            <ul>
+                <li>每位读者最多可同时借阅5本图书</li>
+                <li>借阅期限为30天，可续借一次</li>
+                <li>逾期归还将产生罚款</li>
+                <li>如需帮助，请联系图书馆管理员</li>
+            </ul>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

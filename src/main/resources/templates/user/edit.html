@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='profile')"></div>
+    
+    <div class="container">
+        <section class="books-section">
+            <div class="section-title">
+                <h2>个人中心</h2>
+            </div>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="message success fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error}" class="message error fade-in">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <!-- 用户信息表单 -->
+        <div class="user-form" th:if="${user}">
+            <form th:action="@{/user/profile/update}" method="post">
+                <input type="hidden" name="id" th:value="${user.id}">
+                
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" th:value="${user.username}" 
+                           th:disabled="${!#request.isUserInRole('ROLE_ADMIN')}" 
+                           class="form-control">
+                    <small class="form-text text-muted" th:if="${#request.isUserInRole('ROLE_ADMIN')}">管理员可以修改用户名</small>
+                    <small class="form-text text-muted" th:unless="${#request.isUserInRole('ROLE_ADMIN')}">用户名不可修改</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" name="email" th:value="${user.email}" required class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">电话</label>
+                    <input type="tel" id="phone" name="phone" th:value="${user.phone}" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="balance">账户余额</label>
+                    <input type="number" id="balance" name="balance" th:value="${user.balance}" 
+                           th:disabled="${!#request.isUserInRole('ROLE_ADMIN')}" 
+                           step="0.01" min="0" class="form-control">
+                    <small class="form-text text-muted" th:if="${#request.isUserInRole('ROLE_ADMIN')}">管理员可以修改余额</small>
+                    <small class="form-text text-muted" th:unless="${#request.isUserInRole('ROLE_ADMIN')}">余额由系统自动管理</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" placeholder="不修改请留空" class="form-control">
+                    <small class="form-text text-muted">留空表示不修改密码</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="不修改请留空" class="form-control">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                    <a href="@{/}" class="btn btn-secondary">返回首页</a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 用户信息展示 -->
+        <div class="user-details" th:if="${user}">
+            <h3>账户信息</h3>
+            <div class="detail-row">
+                <span class="label">账户状态：</span>
+                <span class="value" th:text="${user.active ? '激活' : '禁用'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">创建时间：</span>
+                <span class="value" th:text="${#dates.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">更新时间：</span>
+                <span class="value" th:text="${#dates.format(user.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+            </div>
+        </div>
+        
+        <div th:unless="${user}" class="message error">
+            <p>用户信息不存在！</p>
+        </div>
+    </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

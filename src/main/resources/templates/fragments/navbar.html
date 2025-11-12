@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- 导航栏片段，接收activePage参数 -->
+    <div th:fragment="navbar(activePage)" class="custom-navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">图书借阅系统</div>
+            <ul class="nav-links">
+                <!-- 所有人可见 -->
+                <li class="nav-item" th:classappend="${activePage == 'index' ? 'active': ''}"><a th:href="@{/}">首页</a></li>
+                <li class="nav-item" th:classappend="${activePage == 'book-available' ? 'active': ''}"><a th:href="@{/book/available}">图书浏览</a></li>
+                
+                <!-- 已登录用户可见 -->
+                <li class="nav-item" th:classappend="${activePage == 'user-borrows' ? 'active': ''}" th:if="${#request.userPrincipal != null}"><a th:href="@{/borrow/userBorrows}">我的借阅</a></li>
+                
+                <!-- 管理员特有功能 -->
+                <li class="nav-item" th:classappend="${activePage == 'book' ? 'active': ''}" th:if="${#request.userPrincipal != null and #request.userPrincipal.name == 'admin'}"><a th:href="@{/book/list}">图书管理</a></li>
+                <li class="nav-item" th:classappend="${activePage == 'borrow-list' ? 'active': ''}" th:if="${#request.userPrincipal != null and #request.userPrincipal.name == 'admin'}"><a th:href="@{/borrow/list}">借阅记录</a></li>
+                <li class="nav-item" th:classappend="${activePage == 'user' ? 'active': ''}" th:if="${#request.userPrincipal != null and #request.userPrincipal.name == 'admin'}"><a th:href="@{/user/list}">用户管理</a></li>
+                <li class="nav-item" th:classappend="${activePage == 'overdue' ? 'active': ''}" th:if="${#request.userPrincipal != null and #request.userPrincipal.name == 'admin'}"><a th:href="@{/borrow/overdue}">逾期管理</a></li>
+                
+                <!-- 登录状态显示 -->
+                <th:block th:if="${#request.userPrincipal != null}">
+                    <li class="nav-item user-greeting" th:classappend="${activePage == 'profile' ? 'active': ''}">
+                        <a th:href="@{/user/profile}" th:text="|欢迎，${#request.userPrincipal.name}|"></a>
+                    </li>
+                    <li class="nav-item"><a th:href="@{/logout}">退出</a></li>
+                </th:block>
+                <li class="nav-item" th:if="${#request.userPrincipal == null}"><a th:href="@{/login}">登录</a></li>
+                <li class="nav-item" th:if="${#request.userPrincipal == null}"><a th:href="@{/register}">注册</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

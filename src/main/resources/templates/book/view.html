@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书详情 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='book')"></div>
+    
+    <div class="container">
+        <section class="books-section">
+            <div class="section-title">
+                <h2>图书详情</h2>
+            </div>
+        
+        <div class="card">
+            <div class="book-info">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>图书ID：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.id}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>图书名称：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.title}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>作者：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.author != null ? book.author : '未知作者'}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>ISBN：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.isbn}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>出版社：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.publisher}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>出版日期：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${#dates.format(book.publishDate, 'yyyy-MM-dd')}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>总数量：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.totalCopies}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>可借数量：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:text="${book.availableCopies}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>状态：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <span th:class="${book.availableCopies > 0 ? 'book-status status-available' : 'book-status status-unavailable'}">
+                            <span th:if="${book.availableCopies > 0}">可借阅</span>
+                            <span th:unless="${book.availableCopies > 0}">已借出</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>简介：</strong>
+                    </div>
+                    <div class="col-md-9">
+                        <p th:text="${book.description}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="/book/list" class="btn btn-secondary">返回图书列表</a>
+            <a th:href="@{/book/update/{id}(id=${book.id})}" class="btn btn-primary">编辑图书</a>
+            <a th:href="@{/book/delete/{id}(id=${book.id})}" class="btn btn-danger" onclick="return confirm('确定要删除这本图书吗？')">删除图书</a>
+        </div>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

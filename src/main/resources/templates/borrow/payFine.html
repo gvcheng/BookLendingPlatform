@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付罚金 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- 保留FontAwesome图标库用于页面中的图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='user-borrows')"></div>
+    
+    <div class="container pay-fine-page">
+        <!-- 页面头部 -->
+        <section>
+            <div class="page-header">
+                <h1>支付罚金</h1>
+                <p>请支付逾期罚金后才能归还图书</p>
+            </div>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="message success fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error}" class="message error fade-in">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <!-- 罚金信息卡片 -->
+        <div class="fine-info-card fade-in delay-1">
+            <div class="card-header">
+                <i class="fas fa-money-bill-wave"></i> 罚金信息
+            </div>
+            <div class="fine-info">
+                <div class="fine-info-item">
+                    <label>借阅ID</label>
+                    <span th:text="${borrowRecord.id}"></span>
+                </div>
+                <div class="fine-info-item">
+                    <label>图书名称</label>
+                    <span th:text="${borrowRecord.book?.title ?: '未知图书'}"></span>
+                </div>
+                <div class="fine-info-item">
+                    <label>借阅日期</label>
+                    <span th:text="${borrowRecord.borrowDate != null ? #dates.format(borrowRecord.borrowDate, 'yyyy-MM-dd') : '-'}"></span>
+                </div>
+                <div class="fine-info-item">
+                    <label>应还日期</label>
+                    <span th:text="${borrowRecord.dueDate != null ? #dates.format(borrowRecord.dueDate, 'yyyy-MM-dd') : '-'}"></span>
+                </div>
+                <div class="fine-info-item overdue">
+                    <label>逾期天数</label>
+                    <span th:text="${daysOverdue}">0</span> 天
+                </div>
+                <div class="fine-info-item amount">
+                    <label>罚金金额</label>
+                    <span class="fine-amount">¥<span th:text="${#numbers.formatDecimal(fineAmount, 0, 2)}">0.00</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 支付表单 -->
+        <div class="payment-form fade-in delay-2">
+            <div class="card-header">
+                <i class="fas fa-credit-card"></i> 支付罚金
+            </div>
+            <form method="post" th:action="@{/borrow/pay-fine}">
+                <input type="hidden" name="borrowId" th:value="${borrowRecord.id}">
+                <input type="hidden" name="fineAmount" th:value="${fineAmount}">
+                
+                <div class="form-group">
+                    <label for="paymentMethod">支付方式</label>
+                    <select id="paymentMethod" name="paymentMethod" class="form-control" required>
+                        <option value="balance">账户余额</option>
+                        <option value="alipay">支付宝</option>
+                        <option value="wechat">微信支付</option>
+                    </select>
+                </div>
+                
+                <div th:if="${user != null}" class="balance-info">
+                    <p><i class="fas fa-wallet"></i> 当前账户余额: <span class="balance-amount">¥<span th:text="${#numbers.formatDecimal(user.balance, 0, 2)}">0.00</span></span></p>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary pay-btn">
+                        <i class="fas fa-check-circle"></i> 确认支付并归还
+                    </button>
+                    <a th:href="@{/borrow/userBorrows}" class="btn btn-secondary">
+                        <i class="fas fa-times-circle"></i> 取消
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 支付说明 -->
+        <div class="payment-info fade-in delay-3">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> 支付说明
+            </div>
+            <ul>
+                <li>逾期图书必须支付罚金后才能归还</li>
+                <li>罚金计算标准：每逾期一天罚款0.5元</li>
+                <li>您可以选择使用账户余额或第三方支付方式</li>
+                <li>支付成功后，系统将自动完成图书归还</li>
+            </ul>
+        </div>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户详情 - 图书借阅平台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 使用导航栏片段 -->
+    <div th:replace="fragments/navbar :: navbar(activePage='user')"></div>
+    
+    <div class="container">
+        <section class="books-section">
+            <div class="section-title">
+                <h2>用户详情</h2>
+            </div>
+        
+            <a href="/booklending/user/list" class="btn btn-secondary">返回用户列表</a>
+        
+            <div class="user-details" th:if="${user}">
+                <div class="detail-row">
+                    <span class="label">ID：</span>
+                    <span class="value" th:text="${user.id}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">用户名：</span>
+                    <span class="value" th:text="${user.username}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">邮箱：</span>
+                    <span class="value" th:text="${user.email}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">电话：</span>
+                    <span class="value" th:text="${user.phone}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">账户余额：</span>
+                    <span class="value" th:text="${user.balance}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">角色：</span>
+                    <span class="value" th:text="${user.role}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">状态：</span>
+                    <span class="value" th:text="${user.active ? '激活' : '禁用'}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">创建时间：</span>
+                    <span class="value" th:text="${#dates.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">更新时间：</span>
+                    <span class="value" th:text="${#dates.format(user.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+            </div>
+        
+            <div th:unless="${user}" class="message error">
+                <p>用户不存在！</p>
+            </div>
+        </section>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 图书借阅平台 - 让阅读更简单</p>
+    </footer>
+</body>
+</html>
